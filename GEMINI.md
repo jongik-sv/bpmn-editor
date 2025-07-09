@@ -300,6 +300,7 @@ This React application replaces the legacy jQuery-based editor in the parent dir
 - **Test thoroughly**: Each feature should be tested
 - **Document changes**: Update TODO.md for significant changes
 - **Commit frequently**: Small, focused commits
+- **프로그램 수정 후에는 무조건 커밋을 해야 합니다.**
 
 ## Important Notes
 
