@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import * as Y from 'yjs';
-import { SupabaseProvider as YSupabaseProvider } from 'y-supabase';
+// @ts-ignore
+import YSupabaseProvider from 'y-supabase/dist/index.js';
 import { supabase } from '../config/supabase';
 import { useAuth } from './AuthContext';
 
@@ -56,7 +57,6 @@ export const SupabaseProviderProvider: React.FC<SupabaseProviderProviderProps> =
           columnName: 'content',
           id: diagramId,
           resyncInterval: 30000, // 30초마다 재동기화
-          conflictResolver: 'last-write-wins', // 충돌 해결 방식
         });
 
         // 연결 상태 이벤트 리스너
