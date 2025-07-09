@@ -6,7 +6,7 @@ import { useRealtimeCollaboration } from '../hooks/useRealtimeCollaboration';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { useDocumentLoader } from '../hooks/useDocumentLoader';
 import { useAwareness } from '../hooks/useAwareness';
-import { UserAwareness } from '../types/collaboration';
+import type { UserAwareness } from '../types/collaboration';
 
 interface CollaborationContextType {
   // Yjs 문서

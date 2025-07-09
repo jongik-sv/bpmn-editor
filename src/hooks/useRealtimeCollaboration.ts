@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import * as Y from 'yjs';
 import { supabase } from '../config/supabase';
-import { YjsUpdate } from '../types/collaboration';
+import type { YjsUpdate } from '../types/collaboration';
 
 interface UseRealtimeCollaborationProps {
   ydoc: Y.Doc | null;
@@ -43,7 +43,7 @@ export const useRealtimeCollaboration = ({
     channelRef.current = channel;
     
     // Y.Doc 업데이트 리스너
-    const handleYjsUpdate = (update: Uint8Array, origin: any) => {
+    const handleYjsUpdate = (update: Uint8Array, origin: unknown) => {
       if (origin === 'remote') return; // 원격 업데이트는 무시
       
       console.log('Sending Yjs update:', { documentId, origin: userId });
@@ -61,8 +61,8 @@ export const useRealtimeCollaboration = ({
     };
     
     // Realtime 메시지 수신 리스너
-    channel.on('broadcast', { event: 'yjs-update' }, (payload) => {
-      const updateData = payload.payload as YjsUpdate;
+    channel.on('broadcast', { event: 'yjs-update' }, (payload: { payload: YjsUpdate }) => {
+      const updateData = payload.payload;
       
       if (updateData.origin === userId) return; // 자신의 업데이트는 무시
       
@@ -83,16 +83,16 @@ export const useRealtimeCollaboration = ({
       setIsLoading(false);
     });
     
-    channel.on('presence', { event: 'join' }, ({ key, newPresences }) => {
+    channel.on('presence', { event: 'join' }, ({ key, newPresences }: { key: string, newPresences: unknown }) => {
       console.log('User joined:', key, newPresences);
     });
     
-    channel.on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+    channel.on('presence', { event: 'leave' }, ({ key, leftPresences }: { key: string, leftPresences: unknown }) => {
       console.log('User left:', key, leftPresences);
     });
     
     // 채널 구독
-    channel.subscribe(async (status) => {
+    channel.subscribe(async (status: string) => {
       console.log('Channel subscription status:', status);
       
       if (status === 'SUBSCRIBED') {

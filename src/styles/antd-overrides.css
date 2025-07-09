@@ -1,0 +1,137 @@
+/* React 19와 Ant Design 호환성을 위한 CSS 오버라이드 */
+
+/* CSS 변수 활성화로 인한 스타일 최적화 */
+:root {
+  /* Ant Design 테마 CSS 변수 */
+  --ant-color-primary: #1890ff;
+  --ant-color-success: #52c41a;
+  --ant-color-warning: #faad14;
+  --ant-color-error: #f5222d;
+  --ant-color-info: #1890ff;
+  
+  /* 반응형 디자인을 위한 변수 */
+  --ant-layout-header-height: 64px;
+  --ant-layout-footer-height: 64px;
+  --ant-layout-sider-width: 256px;
+}
+
+/* React 19에서 권장하는 최적화된 렌더링 */
+.ant-form-item {
+  /* 불필요한 리렌더링 방지 */
+  contain: layout style;
+}
+
+.ant-btn {
+  /* 버튼 상태 변경 시 최적화 */
+  contain: layout style;
+}
+
+/* Menu 컴포넌트 React 19 호환성 */
+.ant-menu-item {
+  /* 메뉴 아이템 렌더링 최적화 */
+  contain: layout style;
+}
+
+.ant-dropdown-menu {
+  /* 드롭다운 메뉴 성능 최적화 */
+  contain: layout style;
+}
+
+/* Form 컴포넌트 React 19 호환성 */
+.ant-form {
+  /* 폼 검증 성능 최적화 */
+  contain: layout style;
+}
+
+.ant-input {
+  /* 입력 필드 성능 최적화 */
+  contain: layout style;
+}
+
+/* Layout 컴포넌트 최적화 */
+.ant-layout {
+  /* 레이아웃 리렌더링 최적화 */
+  contain: layout;
+}
+
+.ant-layout-header {
+  /* 헤더 고정 최적화 */
+  contain: layout style;
+}
+
+.ant-layout-content {
+  /* 콘텐츠 영역 최적화 */
+  contain: layout;
+}
+
+/* 모달 및 팝업 최적화 */
+.ant-modal {
+  /* 모달 렌더링 최적화 */
+  contain: layout style;
+}
+
+.ant-message {
+  /* 메시지 알림 최적화 */
+  contain: layout style;
+}
+
+/* 테이블 컴포넌트 성능 최적화 */
+.ant-table {
+  /* 테이블 렌더링 최적화 */
+  contain: layout;
+}
+
+.ant-table-tbody > tr > td {
+  /* 테이블 셀 최적화 */
+  contain: layout style;
+}
+
+/* 애니메이션 최적화 */
+.ant-spin {
+  /* 스핀 로딩 최적화 */
+  contain: layout style;
+}
+
+/* 반응형 디자인 개선 */
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    /* 모바일에서 사이드바 최적화 */
+    contain: layout style;
+  }
+  
+  .ant-form-item {
+    /* 모바일에서 폼 아이템 최적화 */
+    margin-bottom: 16px;
+  }
+}
+
+/* 다크 모드 준비 (향후 확장) */
+[data-theme='dark'] {
+  --ant-color-primary: #177ddc;
+  --ant-color-success: #49aa19;
+  --ant-color-warning: #d89614;
+  --ant-color-error: #dc4446;
+  --ant-color-info: #177ddc;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  .ant-btn {
+    border-width: 2px;
+  }
+  
+  .ant-input {
+    border-width: 2px;
+  }
+}
+
+/* 모션 감소 설정 지원 */
+@media (prefers-reduced-motion: reduce) {
+  .ant-spin,
+  .ant-message,
+  .ant-notification {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

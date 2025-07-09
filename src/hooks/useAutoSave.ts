@@ -29,7 +29,7 @@ export const useAutoSave = ({
   useEffect(() => {
     if (!ydoc || !documentId || !userId) return;
     
-    const handleYjsUpdate = (update: Uint8Array, origin: any) => {
+    const handleYjsUpdate = (_update: Uint8Array, origin: unknown) => {
       if (origin === 'remote') return; // 원격 업데이트는 저장하지 않음
       
       setSaveError(null);

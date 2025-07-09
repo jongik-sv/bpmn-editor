@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { RealtimeChannel } from '@supabase/supabase-js';
-import { UserAwareness } from '../types/collaboration';
+import type { UserAwareness } from '../types/collaboration';
 
 interface UseAwarenessProps {
   channel: RealtimeChannel | null;
@@ -59,8 +59,7 @@ export const useAwareness = ({
     
     // 정리
     return () => {
-      channel.off('broadcast', { event: 'awareness-update' }, handleAwarenessUpdate);
-      channel.off('presence', { event: 'leave' }, handleUserLeave);
+      channel.unsubscribe();
     };
   }, [channel, userId]);
   

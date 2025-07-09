@@ -8,6 +8,39 @@ This is a **React-based BPMN Collaborative Editor** - a modern rewrite of the le
 
 **Current Status**: In active development. Basic structure completed, implementing core features.
 
+## User Flow (Business Process)
+
+### 1. Authentication Flow
+- **Login Page**: User authentication via Supabase Auth
+- Support for Google OAuth and email/password login
+- Automatic redirect to Dashboard after successful login
+
+### 2. Dashboard (Project Management)
+- **Project Operations**: Create, select, and delete projects
+- **Data Source**: `public.projects` table in Supabase
+- **Features**:
+  - Project creation with name and description
+  - Project selection to enter editing mode
+  - Project deletion with confirmation
+  - Project sharing and collaboration settings
+
+### 3. Project Editor (Main Workspace)
+- **Two-Panel Layout**:
+  - **Left Panel**: Document tree navigation
+    - Folders structure (`public.folders` table)
+    - BPMN diagrams (`public.diagrams` table)
+    - Hierarchical organization with drag-and-drop
+  - **Right Panel**: BPMN editor workspace
+    - Real-time collaborative BPMN editing
+    - Properties panel for element configuration
+    - Toolbar with modeling tools
+
+### 4. Collaborative Features
+- **Real-time Synchronization**: Multiple users editing simultaneously
+- **User Awareness**: See other users' cursors and selections
+- **Auto-save**: Automatic saving to Supabase database
+- **Version Control**: Document history and rollback capabilities
+
 ## Architecture & Technology Stack
 
 ### Technology Stack
@@ -15,7 +48,7 @@ This is a **React-based BPMN Collaborative Editor** - a modern rewrite of the le
 - **UI Framework**: Ant Design 5 + Tailwind CSS
 - **BPMN Editor**: bpmn-js library
 - **Backend**: Supabase (PostgreSQL + Auth + Real-time)
-- **Real-time Collaboration**: Y-Supabase (Yjs + Supabase integration)
+- **Real-time Collaboration**: Direct Yjs + Supabase Realtime integration
 - **Routing**: React Router DOM
 - **Build Tool**: Vite
 - **Package Manager**: npm
@@ -25,13 +58,25 @@ This is a **React-based BPMN Collaborative Editor** - a modern rewrite of the le
 bpmn-editor/
 ├── src/
 │   ├── components/          # React components
-│   │   ├── LoginPage.tsx    # Authentication page
-│   │   ├── Dashboard.tsx    # Project management dashboard
-│   │   ├── BpmnEditorPage.tsx  # BPMN editor page
-│   │   └── BpmnEditor.tsx   # BPMN editor component
+│   │   ├── LoginPage.tsx    # Authentication page (Step 1)
+│   │   ├── Dashboard.tsx    # Project management dashboard (Step 2)
+│   │   ├── BpmnEditorPage.tsx  # Main editor workspace (Step 3)
+│   │   ├── BpmnEditor.tsx   # Basic BPMN editor component
+│   │   └── NewCollaborativeBpmnEditor.tsx  # Collaborative BPMN editor
 │   ├── contexts/           # React Context providers
 │   │   ├── AuthContext.tsx  # Authentication state management
 │   │   └── ProjectContext.tsx # Project/diagram state management
+│   ├── hooks/              # Custom React hooks
+│   │   ├── useYjsDocument.ts    # Yjs document lifecycle
+│   │   ├── useRealtimeCollaboration.ts  # Supabase Realtime integration
+│   │   ├── useAutoSave.ts       # Auto-save functionality
+│   │   ├── useDocumentLoader.ts # Document loading from database
+│   │   └── useAwareness.ts      # User presence and awareness
+│   ├── providers/          # React Context providers
+│   │   └── CollaborationProvider.tsx  # Unified collaboration provider
+│   ├── types/              # TypeScript type definitions
+│   │   ├── index.ts        # General types
+│   │   └── collaboration.ts # Collaboration-specific types
 │   ├── App.tsx             # Main application component
 │   ├── App.css             # Global styles
 │   └── main.tsx            # Application entry point
@@ -108,23 +153,40 @@ npm install -D <package-name>
 
 ## Key Components
 
-### AuthContext
-- Manages authentication state
+### Step 1: Authentication (LoginPage)
+- **AuthContext**: Manages authentication state
 - Provides login/logout functionality
 - Handles Google OAuth integration
 - Supabase client configuration
+- Automatic redirect to Dashboard
 
-### ProjectContext
-- Manages projects and diagrams
-- CRUD operations for projects/diagrams
+### Step 2: Project Management (Dashboard)
+- **ProjectContext**: Manages projects and diagrams
+- Project CRUD operations with `public.projects` table
+- Project selection and navigation
 - Database integration with Supabase
-- Auto-save functionality
+- Project sharing and permissions
 
-### BpmnEditor
-- Integrates bpmn-js modeler
-- Handles BPMN XML import/export
-- Manages diagram state
-- Supports real-time collaboration (planned)
+### Step 3: Editor Workspace (BpmnEditorPage)
+- **Two-Panel Layout**:
+  - **Left Panel**: Document tree with folders and diagrams
+  - **Right Panel**: Collaborative BPMN editor
+
+#### Left Panel Components
+- Folder tree navigation (`public.folders`)
+- Diagram list management (`public.diagrams`)
+- Drag-and-drop organization
+- Create/delete/rename operations
+
+#### Right Panel Components
+- **NewCollaborativeBpmnEditor**: Main editing component
+- **CollaborationProvider**: Unified collaboration state
+- **Custom Hooks**:
+  - `useYjsDocument`: Document lifecycle management
+  - `useRealtimeCollaboration`: Real-time synchronization
+  - `useAutoSave`: Automatic saving to database
+  - `useDocumentLoader`: Document loading from database
+  - `useAwareness`: User presence and selection sharing
 
 ## Environment Variables
 
@@ -136,12 +198,34 @@ VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 
 ## Database Schema
 
-The application uses Supabase with the following main tables:
-- `profiles` - User profiles
-- `projects` - Project containers
-- `diagrams` - BPMN diagrams with XML content
+The application uses Supabase with the following main tables in the `public` schema:
+
+### User Management
+- `profiles` - User profiles linked to Supabase Auth
 - `project_members` - Project sharing and permissions
-- `folders` - Folder structure (planned)
+- `project_invitations` - Project invitation system
+
+### Project Structure (Step 2: Dashboard)
+- `projects` - Project containers with metadata
+  - Used in Dashboard for project creation, selection, deletion
+  - Contains project name, description, owner, settings
+
+### Document Organization (Step 3: Left Panel)
+- `folders` - Hierarchical folder structure
+  - Nested folder organization for documents
+  - Supports drag-and-drop reorganization
+- `diagrams` - BPMN diagrams with XML content
+  - Individual BPMN diagrams within projects/folders
+  - Contains BPMN XML, metadata, version info
+
+### Collaboration Support
+- `bpmn_documents` - Real-time collaboration state
+  - Yjs document state for collaborative editing
+  - Binary data storage for CRDT operations
+- `collaboration_sessions` - Active user sessions
+- `activity_logs` - Project and diagram activity tracking
+- `diagram_versions` - Version history for diagrams
+- `diagram_comments` - Comments on diagram elements
 
 ## Development Guidelines
 
@@ -160,11 +244,12 @@ The application uses Supabase with the following main tables:
 - Use Context for global state
 
 ### Real-time Collaboration
-- Use Y-Supabase for Yjs integration
+- Use direct Yjs + Supabase Realtime integration
 - Implement awareness for user presence
 - Handle connection states properly
-- Add conflict resolution
+- Add conflict resolution with CRDT
 - Implement auto-save with debouncing
+- Modular hooks architecture for maintainability
 
 ## Testing Strategy
 

@@ -19,6 +19,20 @@ export default function BpmnEditor({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // XML 저장 (onChange 콜백 호출)
+  const saveXML = useCallback(async () => {
+    if (!modelerRef.current || !onChange) return;
+
+    try {
+      const { xml } = await modelerRef.current.saveXML({ format: true });
+      if (xml) {
+        onChange(xml);
+      }
+    } catch (err) {
+      console.error('Error saving BPMN XML:', err);
+    }
+  }, [onChange]);
+
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -84,20 +98,6 @@ export default function BpmnEditor({
       }
     };
   }, [initialXml, onChange, saveXML]);
-
-  // XML 저장 (onChange 콜백 호출)
-  const saveXML = useCallback(async () => {
-    if (!modelerRef.current || !onChange) return;
-
-    try {
-      const { xml } = await modelerRef.current.saveXML({ format: true });
-      if (xml) {
-        onChange(xml);
-      }
-    } catch (err) {
-      console.error('Error saving BPMN XML:', err);
-    }
-  }, [onChange]);
 
 
   if (error) {

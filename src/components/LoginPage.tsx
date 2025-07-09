@@ -84,6 +84,11 @@ const LoginPage: React.FC = () => {
           onFinish={handleSubmit}
           layout="vertical"
           size="middle"
+          // React 19 공식 권장 설정
+          preserve={false}
+          validateTrigger={['onChange', 'onBlur']}
+          scrollToFirstError
+          requiredMark={false}
         >
           {!isLogin && (
             <Form.Item

@@ -1,17 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import type { User, LoginCredentials, SignupCredentials } from '../types';
-import * as types from '../types';
-
-// Supabase client configuration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
-}
-
-const supabase = createClient<types.Database>(supabaseUrl, supabaseAnonKey);
+import { supabase } from '../config/supabase';
 
 interface AuthContextType {
   user: User | null;

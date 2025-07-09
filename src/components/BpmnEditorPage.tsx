@@ -10,8 +10,7 @@ import {
   Spin, 
   Avatar, 
   Tooltip,
-  Dropdown,
-  Menu
+  Dropdown
 } from 'antd';
 import { 
   ArrowLeftOutlined, 
@@ -104,13 +103,15 @@ const BpmnEditorPage: React.FC = () => {
     }
   };
 
-  const userMenu = (
-    <Menu>
-      <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
-        로그아웃
-      </Menu.Item>
-    </Menu>
-  );
+  // React 19 호환성을 위한 Menu 설정
+  const userMenuItems = [
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: '로그아웃',
+      onClick: handleLogout,
+    },
+  ];
 
   if (loading) {
     return (
@@ -201,7 +202,7 @@ const BpmnEditorPage: React.FC = () => {
               </Space>
             </div>
 
-            <Dropdown menu={{ items: userMenu.props.children }} placement="bottomRight">
+            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <div className="flex items-center cursor-pointer">
                 <Avatar 
                   icon={<UserOutlined />} 
