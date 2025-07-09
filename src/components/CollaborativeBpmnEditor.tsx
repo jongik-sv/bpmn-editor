@@ -92,7 +92,9 @@ export default function CollaborativeBpmnEditor({
           await modeler.createDiagram();
           // 새 다이어그램 XML을 Y.Doc에 저장
           const { xml } = await modeler.saveXML({ format: true });
-          xmlText.insert(0, xml);
+          if (xml) {
+            xmlText.insert(0, xml);
+          }
         }
 
         // 캔버스 중앙 정렬
@@ -145,8 +147,8 @@ export default function CollaborativeBpmnEditor({
     const eventBus = modeler.get('eventBus') as any;
     
     // 요소 변경 이벤트
-    eventBus.on('commandStack.changed', (event: any) => {
-      handleBpmnChange(modeler, event);
+    eventBus.on('commandStack.changed', () => {
+      handleBpmnChange(modeler);
     });
 
     // 선택 이벤트 (Awareness용)
@@ -197,23 +199,25 @@ export default function CollaborativeBpmnEditor({
   };
 
   // BPMN 변경사항을 Y.Doc에 반영
-  const handleBpmnChange = async (modeler: BpmnModeler, _event: any) => {
+  const handleBpmnChange = async (modeler: BpmnModeler) => {
     try {
       // 트랜잭션 시작 (origin을 사용자 ID로 설정)
       ydoc.transact(() => {
         // XML 업데이트
         modeler.saveXML({ format: true }).then(({ xml }) => {
-          // 기존 XML 텍스트 삭제 후 새 XML 삽입
-          xmlText.delete(0, xmlText.length);
-          xmlText.insert(0, xml);
-          
-          // onChange 콜백 호출
-          if (onChange) {
-            onChange(xml);
+          if (xml) {
+            // 기존 XML 텍스트 삭제 후 새 XML 삽입
+            xmlText.delete(0, xmlText.length);
+            xmlText.insert(0, xml);
+            
+            // onChange 콜백 호출
+            if (onChange) {
+              onChange(xml);
+            }
+            
+            // 자동 저장 실행
+            debouncedAutoSave(xml);
           }
-          
-          // 자동 저장 실행
-          debouncedAutoSave(xml);
         });
 
         // 요소별 변경사항 추적
