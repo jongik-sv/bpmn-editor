@@ -2,7 +2,13 @@
 
 ## 개요
 
-이 문서는 React 19와 Ant Design 5.26.4 간의 호환성을 위해 적용된 설정들을 설명합니다.
+이 문서는 [Ant Design 공식 React 19 가이드](https://ant.design/docs/react/v5-for-19)에 따라 React 19와 Ant Design 5.26.4 간의 호환성을 위해 적용된 설정들을 설명합니다.
+
+## ✅ 완료된 호환성 조치
+
+### 공식 패치 적용
+- `@ant-design/v5-patch-for-react-19`: React 19 전용 패치 패키지 설치 및 적용
+- `unstableSetRender`: React 19 렌더링 시스템과 호환되는 커스텀 렌더러 설정
 
 ## 적용된 호환성 조치
 
