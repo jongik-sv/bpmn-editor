@@ -138,7 +138,7 @@ export default function NewCollaborativeBpmnEditor({
     eventBus.on('selection.changed', (event: any) => {
       handleSelectionChange(event);
     });
-  }, [updateSelection]);
+  }, [handleBpmnChange, handleSelectionChange]);
   
   // Y.Doc 변경 이벤트 리스너 설정
   const setupYjsEventListeners = useCallback((modeler: BpmnModeler) => {
@@ -153,7 +153,7 @@ export default function NewCollaborativeBpmnEditor({
         updateModelerFromYjs(modeler, currentXml);
       }
     });
-  }, [xmlText, user?.id]);
+  }, [xmlText, user?.id, updateModelerFromYjs]);
   
   // BPMN 변경사항을 Y.Doc에 반영
   const handleBpmnChange = useCallback(async (modeler: BpmnModeler) => {

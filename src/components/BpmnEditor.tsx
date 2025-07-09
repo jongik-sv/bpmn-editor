@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 
 // 기본 BPMN 다이어그램 XML은 사용하지 않음 (createDiagram 사용)
@@ -83,10 +83,10 @@ export default function BpmnEditor({
         }
       }
     };
-  }, []);
+  }, [initialXml, onChange, saveXML]);
 
   // XML 저장 (onChange 콜백 호출)
-  const saveXML = async () => {
+  const saveXML = useCallback(async () => {
     if (!modelerRef.current || !onChange) return;
 
     try {
@@ -97,7 +97,7 @@ export default function BpmnEditor({
     } catch (err) {
       console.error('Error saving BPMN XML:', err);
     }
-  };
+  }, [onChange]);
 
 
   if (error) {
