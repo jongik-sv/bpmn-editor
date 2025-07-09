@@ -23,7 +23,6 @@
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.3",
     "tailwindcss": "^4.1.11",
-    "y-supabase": "^0.0.4-7-alpha",
     "yjs": "^13.6.27"
   },
   "devDependencies": {

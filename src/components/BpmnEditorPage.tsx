@@ -25,8 +25,8 @@ import {
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useProject } from '../contexts/ProjectContext';
-import { SupabaseProviderProvider } from '../contexts/SupabaseProvider';
-import CollaborativeBpmnEditor from './CollaborativeBpmnEditor';
+import { CollaborationProvider } from '../providers/CollaborationProvider';
+import NewCollaborativeBpmnEditor from './NewCollaborativeBpmnEditor';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
@@ -38,8 +38,7 @@ const BpmnEditorPage: React.FC = () => {
   const { 
     currentProject, 
     diagrams, 
-    saveDiagramXml, 
-    loadDiagrams 
+    saveDiagramXml 
   } = useProject();
 
   const [currentDiagram, setCurrentDiagram] = useState<any>(null);
@@ -197,16 +196,14 @@ const BpmnEditorPage: React.FC = () => {
                 <Avatar
                   size="small"
                   icon={<UserOutlined />}
-                  src={user?.avatar}
                 />
                 <Text type="secondary">1 명 편집 중</Text>
               </Space>
             </div>
 
-            <Dropdown overlay={userMenu} placement="bottomRight">
+            <Dropdown menu={{ items: userMenu.props.children }} placement="bottomRight">
               <div className="flex items-center cursor-pointer">
                 <Avatar 
-                  src={user?.avatar} 
                   icon={<UserOutlined />} 
                   size="small"
                 />
@@ -217,13 +214,17 @@ const BpmnEditorPage: React.FC = () => {
       </Header>
 
       <Content style={{ padding: 0 }}>
-        <SupabaseProviderProvider diagramId={currentDiagram.id}>
-          <CollaborativeBpmnEditor 
+        <CollaborationProvider 
+          documentId={currentDiagram.id}
+          userId={user?.id || ''}
+          userName={user?.email || 'Anonymous'}
+        >
+          <NewCollaborativeBpmnEditor 
             diagramId={currentDiagram.id}
             initialXml={bpmnXml}
             onChange={handleXmlChange}
           />
-        </SupabaseProviderProvider>
+        </CollaborationProvider>
       </Content>
     </Layout>
   );
