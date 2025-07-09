@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { User, LoginCredentials, SignupCredentials } from '../types';
+import type { User, LoginCredentials, SignupCredentials } from '../types';
 import * as types from '../types';
 
 // Supabase client configuration

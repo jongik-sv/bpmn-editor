@@ -25,7 +25,8 @@ import {
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useProject } from '../contexts/ProjectContext';
-import BpmnEditor from './BpmnEditor';
+import { SupabaseProviderProvider } from '../contexts/SupabaseProvider';
+import CollaborativeBpmnEditor from './CollaborativeBpmnEditor';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
@@ -216,11 +217,13 @@ const BpmnEditorPage: React.FC = () => {
       </Header>
 
       <Content style={{ padding: 0 }}>
-        <BpmnEditor 
-          initialXml={bpmnXml}
-          onChange={handleXmlChange}
-          diagramId={currentDiagram.id}
-        />
+        <SupabaseProviderProvider diagramId={currentDiagram.id}>
+          <CollaborativeBpmnEditor 
+            diagramId={currentDiagram.id}
+            initialXml={bpmnXml}
+            onChange={handleXmlChange}
+          />
+        </SupabaseProviderProvider>
       </Content>
     </Layout>
   );

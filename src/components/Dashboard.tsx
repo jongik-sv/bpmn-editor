@@ -29,6 +29,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useProject } from '../contexts/ProjectContext';
 import { useNavigate } from 'react-router-dom';
+import type { Project, Diagram, ProjectFormData, DiagramFormData } from '../types';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -53,29 +54,29 @@ const Dashboard: React.FC = () => {
 
   const [projectModalVisible, setProjectModalVisible] = useState(false);
   const [diagramModalVisible, setDiagramModalVisible] = useState(false);
-  const [editingProject, setEditingProject] = useState(null);
-  const [editingDiagram, setEditingDiagram] = useState(null);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editingDiagram, setEditingDiagram] = useState<Diagram | null>(null);
 
   const [projectForm] = Form.useForm();
   const [diagramForm] = Form.useForm();
 
   useEffect(() => {
     loadProjects();
-  }, []);
+  }, [loadProjects]);
 
-  const handleCreateProject = async (values: any) => {
+  const handleCreateProject = async (values: ProjectFormData) => {
     try {
       const newProject = await createProject(values.name, values.description);
       message.success('프로젝트가 생성되었습니다.');
       setProjectModalVisible(false);
       projectForm.resetFields();
       selectProject(newProject);
-    } catch (error: any) {
-      message.error(error.message || '프로젝트 생성에 실패했습니다.');
+    } catch (error: unknown) {
+      message.error(error instanceof Error ? error.message : '프로젝트 생성에 실패했습니다.');
     }
   };
 
-  const handleUpdateProject = async (values: any) => {
+  const handleUpdateProject = async (values: Partial<ProjectFormData>) => {
     if (!editingProject) return;
     
     try {
@@ -84,8 +85,8 @@ const Dashboard: React.FC = () => {
       setProjectModalVisible(false);
       setEditingProject(null);
       projectForm.resetFields();
-    } catch (error: any) {
-      message.error(error.message || '프로젝트 수정에 실패했습니다.');
+    } catch (error: unknown) {
+      message.error(error instanceof Error ? error.message : '프로젝트 수정에 실패했습니다.');
     }
   };
 
@@ -100,14 +101,14 @@ const Dashboard: React.FC = () => {
         try {
           await deleteProject(projectId);
           message.success('프로젝트가 삭제되었습니다.');
-        } catch (error: any) {
-          message.error(error.message || '프로젝트 삭제에 실패했습니다.');
+        } catch (error: unknown) {
+          message.error(error instanceof Error ? error.message : '프로젝트 삭제에 실패했습니다.');
         }
       },
     });
   };
 
-  const handleCreateDiagram = async (values: any) => {
+  const handleCreateDiagram = async (values: DiagramFormData) => {
     if (!currentProject) return;
     
     try {
@@ -116,12 +117,12 @@ const Dashboard: React.FC = () => {
       setDiagramModalVisible(false);
       diagramForm.resetFields();
       navigate(`/editor/${newDiagram.id}`);
-    } catch (error: any) {
-      message.error(error.message || '다이어그램 생성에 실패했습니다.');
+    } catch (error: unknown) {
+      message.error(error instanceof Error ? error.message : '다이어그램 생성에 실패했습니다.');
     }
   };
 
-  const handleUpdateDiagram = async (values: any) => {
+  const handleUpdateDiagram = async (values: Partial<DiagramFormData>) => {
     if (!editingDiagram) return;
     
     try {
@@ -130,8 +131,8 @@ const Dashboard: React.FC = () => {
       setDiagramModalVisible(false);
       setEditingDiagram(null);
       diagramForm.resetFields();
-    } catch (error: any) {
-      message.error(error.message || '다이어그램 수정에 실패했습니다.');
+    } catch (error: unknown) {
+      message.error(error instanceof Error ? error.message : '다이어그램 수정에 실패했습니다.');
     }
   };
 
@@ -146,8 +147,8 @@ const Dashboard: React.FC = () => {
         try {
           await deleteDiagram(diagramId);
           message.success('다이어그램이 삭제되었습니다.');
-        } catch (error: any) {
-          message.error(error.message || '다이어그램 삭제에 실패했습니다.');
+        } catch (error: unknown) {
+          message.error(error instanceof Error ? error.message : '다이어그램 삭제에 실패했습니다.');
         }
       },
     });
@@ -157,8 +158,8 @@ const Dashboard: React.FC = () => {
     try {
       await logout();
       message.success('로그아웃되었습니다.');
-    } catch (error: any) {
-      message.error(error.message || '로그아웃에 실패했습니다.');
+    } catch (error: unknown) {
+      message.error(error instanceof Error ? error.message : '로그아웃에 실패했습니다.');
     }
   };
 
@@ -170,7 +171,7 @@ const Dashboard: React.FC = () => {
     </Menu>
   );
 
-  const projectActions = (project: any) => (
+  const projectActions = (project: Project) => (
     <Menu>
       <Menu.Item 
         key="edit" 
@@ -193,7 +194,7 @@ const Dashboard: React.FC = () => {
     </Menu>
   );
 
-  const diagramActions = (diagram: any) => (
+  const diagramActions = (diagram: Diagram) => (
     <Menu>
       <Menu.Item 
         key="edit" 
@@ -226,11 +227,11 @@ const Dashboard: React.FC = () => {
           <Dropdown overlay={userMenu} placement="bottomRight">
             <div className="flex items-center cursor-pointer">
               <Avatar 
-                src={user?.avatar} 
+                src={user?.avatar_url} 
                 icon={<UserOutlined />} 
                 className="mr-2"
               />
-              <Text>{user?.name || user?.email}</Text>
+              <Text>{user?.display_name || user?.email}</Text>
             </div>
           </Dropdown>
         </div>
@@ -359,7 +360,7 @@ const Dashboard: React.FC = () => {
                         description={
                           <div>
                             <Text type="secondary" className="text-sm">
-                              {new Date(diagram.updated_at).toLocaleDateString()}
+                              {diagram.updated_at ? new Date(diagram.updated_at).toLocaleDateString() : ''}
                             </Text>
                           </div>
                         }

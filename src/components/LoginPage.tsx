@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Typography, message, Divider, Alert } from 'antd';
 import { UserOutlined, LockOutlined, GoogleOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
-import { LoginCredentials, SignupCredentials } from '../types';
+import type { LoginCredentials, SignupCredentials } from '../types';
 
 const { Title, Text } = Typography;
 

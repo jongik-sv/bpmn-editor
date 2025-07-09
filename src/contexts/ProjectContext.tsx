@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from './AuthContext';
 import { useAuth } from './AuthContext';
-import { Project, Diagram, Folder } from '../types';
+import type { Project, Diagram, Folder } from '../types';
 
 interface ProjectContextType {
   projects: Project[];
