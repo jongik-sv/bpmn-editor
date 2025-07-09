@@ -1,36 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 
-// 기본 BPMN 다이어그램 XML (최소한의 구조)
-const INITIAL_DIAGRAM = `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" 
-                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
-                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
-                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
-                  id="Definitions_1" 
-                  targetNamespace="http://bpmn.io/schema/bpmn">
-  <bpmn:process id="Process_1" isExecutable="true">
-    <bpmn:startEvent id="StartEvent_1" />
-  </bpmn:process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="179" y="159" width="36" height="36" />
-      </bpmndi:BPMNShape>
-    </bpmndi:BPMNPlane>
-  </bpmndi:BPMNDiagram>
-</bpmn:definitions>`;
+// 기본 BPMN 다이어그램 XML은 사용하지 않음 (createDiagram 사용)
+// const INITIAL_DIAGRAM = `<?xml version="1.0" encoding="UTF-8"?>...</bpmn:definitions>`;
 
 interface BpmnEditorProps {
   initialXml?: string;
   onChange?: (xml: string) => void;
-  diagramId?: string;
+  // diagramId는 사용하지 않으므로 제거
 }
 
 export default function BpmnEditor({ 
   initialXml, 
-  onChange, 
-  diagramId 
+  onChange
 }: BpmnEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const modelerRef = useRef<BpmnModeler | null>(null);
@@ -64,7 +46,7 @@ export default function BpmnEditor({
             }
             
             // 캔버스 중앙 정렬
-            const canvas = modeler.get('canvas');
+            const canvas = modeler.get('canvas') as any;
             canvas.zoom('fit-viewport');
             
             setIsLoading(false);
@@ -109,7 +91,9 @@ export default function BpmnEditor({
 
     try {
       const { xml } = await modelerRef.current.saveXML({ format: true });
-      onChange(xml);
+      if (xml) {
+        onChange(xml);
+      }
     } catch (err) {
       console.error('Error saving BPMN XML:', err);
     }

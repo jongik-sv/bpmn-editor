@@ -123,10 +123,10 @@ export default function NewCollaborativeBpmnEditor({
         }
       }
     };
-  }, [ydoc, hasDocumentLoaded, isInitialized, initialXml, xmlText]);
+  }, [ydoc, hasDocumentLoaded, isInitialized, initialXml, xmlText, setupModelingEventListeners, setupYjsEventListeners]);
   
   // BPMN 모델링 이벤트 리스너 설정
-  const setupModelingEventListeners = (modeler: BpmnModeler) => {
+  const setupModelingEventListeners = useCallback((modeler: BpmnModeler) => {
     const eventBus = modeler.get('eventBus') as any;
     
     // 요소 변경 이벤트
@@ -138,10 +138,10 @@ export default function NewCollaborativeBpmnEditor({
     eventBus.on('selection.changed', (event: any) => {
       handleSelectionChange(event);
     });
-  };
+  }, [updateSelection]);
   
   // Y.Doc 변경 이벤트 리스너 설정
-  const setupYjsEventListeners = (modeler: BpmnModeler) => {
+  const setupYjsEventListeners = useCallback((modeler: BpmnModeler) => {
     if (!xmlText) return;
     
     // XML 텍스트 변경 감지
@@ -153,10 +153,10 @@ export default function NewCollaborativeBpmnEditor({
         updateModelerFromYjs(modeler, currentXml);
       }
     });
-  };
+  }, [xmlText, user?.id]);
   
   // BPMN 변경사항을 Y.Doc에 반영
-  const handleBpmnChange = async (modeler: BpmnModeler) => {
+  const handleBpmnChange = useCallback(async (modeler: BpmnModeler) => {
     if (!ydoc || !xmlText) return;
     
     try {
@@ -182,16 +182,16 @@ export default function NewCollaborativeBpmnEditor({
     } catch (err) {
       console.error('Error handling BPMN change:', err);
     }
-  };
+  }, [ydoc, xmlText, onChange, debouncedSave, user?.id]);
   
   // 선택 변경 처리 (Awareness용)
-  const handleSelectionChange = (event: any) => {
+  const handleSelectionChange = useCallback((event: any) => {
     const selectedElements = event.newSelection || [];
     updateSelection(selectedElements.map((el: any) => el.id));
-  };
+  }, [updateSelection]);
   
   // Y.Doc 변경사항을 BPMN 모델러에 반영
-  const updateModelerFromYjs = async (modeler: BpmnModeler, xml: string) => {
+  const updateModelerFromYjs = useCallback(async (modeler: BpmnModeler, xml: string) => {
     try {
       // 현재 XML과 비교하여 변경된 경우만 업데이트
       const { xml: currentXml } = await modeler.saveXML({ format: true });
@@ -206,10 +206,10 @@ export default function NewCollaborativeBpmnEditor({
     } catch (err) {
       console.error('Error updating modeler from Yjs:', err);
     }
-  };
+  }, []);
   
   // Awareness UI 업데이트
-  const updateAwarenessUI = (modeler: BpmnModeler) => {
+  const updateAwarenessUI = useCallback((modeler: BpmnModeler) => {
     const canvas = modeler.get('canvas') as any;
     const container = canvas.getContainer();
     
@@ -245,14 +245,14 @@ export default function NewCollaborativeBpmnEditor({
         });
       }
     });
-  };
+  }, [awarenessState]);
   
   // Awareness 상태 변경 시 UI 업데이트
   useEffect(() => {
     if (modelerRef.current && isInitialized) {
       updateAwarenessUI(modelerRef.current);
     }
-  }, [awarenessState, isInitialized]);
+  }, [awarenessState, isInitialized, updateAwarenessUI]);
   
   if (connectionError || documentLoadError || editorError) {
     return (
