@@ -54,6 +54,89 @@ export default function NewCollaborativeBpmnEditor({
     }
   }, [diagramId, saveDiagramXml]);
   
+  // Y.Doc 변경사항을 BPMN 모델러에 반영
+  const updateModelerFromYjs = useCallback(async (modeler: BpmnModeler, xml: string) => {
+    try {
+      // 현재 XML과 비교하여 변경된 경우만 업데이트
+      const { xml: currentXml } = await modeler.saveXML({ format: true });
+      
+      if (currentXml !== xml) {
+        await modeler.importXML(xml);
+        
+        // 캔버스 다시 맞춤
+        const canvas = modeler.get('canvas') as any;
+        canvas.zoom('fit-viewport');
+      }
+    } catch (err) {
+      console.error('Error updating modeler from Yjs:', err);
+    }
+  }, []);
+  
+  // 선택 변경 처리 (Awareness용)
+  const handleSelectionChange = useCallback((event: any) => {
+    const selectedElements = event.newSelection || [];
+    updateSelection(selectedElements.map((el: any) => el.id));
+  }, [updateSelection]);
+  
+  // BPMN 변경사항을 Y.Doc에 반영
+  const handleBpmnChange = useCallback(async (modeler: BpmnModeler) => {
+    if (!ydoc || !xmlText) return;
+    
+    try {
+      // 트랜잭션 시작 (origin을 사용자 ID로 설정)
+      ydoc.transact(() => {
+        // XML 업데이트
+        modeler.saveXML({ format: true }).then(({ xml }) => {
+          if (xml) {
+            // 기존 XML 텍스트 삭제 후 새 XML 삽입
+            xmlText.delete(0, xmlText.length);
+            xmlText.insert(0, xml);
+            
+            // onChange 콜백 호출
+            if (onChange) {
+              onChange(xml);
+            }
+            
+            // 기존 저장 시스템과 연동
+            debouncedSave(xml);
+          }
+        });
+      }, user?.id || '');
+    } catch (err) {
+      console.error('Error handling BPMN change:', err);
+    }
+  }, [ydoc, xmlText, onChange, debouncedSave, user?.id]);
+  
+  // BPMN 모델링 이벤트 리스너 설정
+  const setupModelingEventListeners = useCallback((modeler: BpmnModeler) => {
+    const eventBus = modeler.get('eventBus') as any;
+    
+    // 요소 변경 이벤트
+    eventBus.on('commandStack.changed', () => {
+      handleBpmnChange(modeler);
+    });
+    
+    // 선택 이벤트 (Awareness용)
+    eventBus.on('selection.changed', (event: any) => {
+      handleSelectionChange(event);
+    });
+  }, [handleBpmnChange, handleSelectionChange]);
+  
+  // Y.Doc 변경 이벤트 리스너 설정
+  const setupYjsEventListeners = useCallback((modeler: BpmnModeler) => {
+    if (!xmlText) return;
+    
+    // XML 텍스트 변경 감지
+    xmlText.observe((event: Y.YTextEvent) => {
+      if ((event as any).origin === user?.id) return; // 자신의 변경사항 무시
+      
+      const currentXml = xmlText.toString();
+      if (currentXml) {
+        updateModelerFromYjs(modeler, currentXml);
+      }
+    });
+  }, [xmlText, user?.id, updateModelerFromYjs]);
+  
   useEffect(() => {
     if (!containerRef.current || !ydoc || !hasDocumentLoaded || isInitialized) return;
     
@@ -124,89 +207,6 @@ export default function NewCollaborativeBpmnEditor({
       }
     };
   }, [ydoc, hasDocumentLoaded, isInitialized, initialXml, xmlText, setupModelingEventListeners, setupYjsEventListeners]);
-  
-  // BPMN 모델링 이벤트 리스너 설정
-  const setupModelingEventListeners = useCallback((modeler: BpmnModeler) => {
-    const eventBus = modeler.get('eventBus') as any;
-    
-    // 요소 변경 이벤트
-    eventBus.on('commandStack.changed', () => {
-      handleBpmnChange(modeler);
-    });
-    
-    // 선택 이벤트 (Awareness용)
-    eventBus.on('selection.changed', (event: any) => {
-      handleSelectionChange(event);
-    });
-  }, [handleBpmnChange, handleSelectionChange]);
-  
-  // Y.Doc 변경 이벤트 리스너 설정
-  const setupYjsEventListeners = useCallback((modeler: BpmnModeler) => {
-    if (!xmlText) return;
-    
-    // XML 텍스트 변경 감지
-    xmlText.observe((event: Y.YTextEvent) => {
-      if ((event as any).origin === user?.id) return; // 자신의 변경사항 무시
-      
-      const currentXml = xmlText.toString();
-      if (currentXml) {
-        updateModelerFromYjs(modeler, currentXml);
-      }
-    });
-  }, [xmlText, user?.id, updateModelerFromYjs]);
-  
-  // BPMN 변경사항을 Y.Doc에 반영
-  const handleBpmnChange = useCallback(async (modeler: BpmnModeler) => {
-    if (!ydoc || !xmlText) return;
-    
-    try {
-      // 트랜잭션 시작 (origin을 사용자 ID로 설정)
-      ydoc.transact(() => {
-        // XML 업데이트
-        modeler.saveXML({ format: true }).then(({ xml }) => {
-          if (xml) {
-            // 기존 XML 텍스트 삭제 후 새 XML 삽입
-            xmlText.delete(0, xmlText.length);
-            xmlText.insert(0, xml);
-            
-            // onChange 콜백 호출
-            if (onChange) {
-              onChange(xml);
-            }
-            
-            // 기존 저장 시스템과 연동
-            debouncedSave(xml);
-          }
-        });
-      }, user?.id || '');
-    } catch (err) {
-      console.error('Error handling BPMN change:', err);
-    }
-  }, [ydoc, xmlText, onChange, debouncedSave, user?.id]);
-  
-  // 선택 변경 처리 (Awareness용)
-  const handleSelectionChange = useCallback((event: any) => {
-    const selectedElements = event.newSelection || [];
-    updateSelection(selectedElements.map((el: any) => el.id));
-  }, [updateSelection]);
-  
-  // Y.Doc 변경사항을 BPMN 모델러에 반영
-  const updateModelerFromYjs = useCallback(async (modeler: BpmnModeler, xml: string) => {
-    try {
-      // 현재 XML과 비교하여 변경된 경우만 업데이트
-      const { xml: currentXml } = await modeler.saveXML({ format: true });
-      
-      if (currentXml !== xml) {
-        await modeler.importXML(xml);
-        
-        // 캔버스 다시 맞춤
-        const canvas = modeler.get('canvas') as any;
-        canvas.zoom('fit-viewport');
-      }
-    } catch (err) {
-      console.error('Error updating modeler from Yjs:', err);
-    }
-  }, []);
   
   // Awareness UI 업데이트
   const updateAwarenessUI = useCallback((modeler: BpmnModeler) => {

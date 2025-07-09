@@ -108,7 +108,7 @@ export const useAwareness = ({
   };
   
   // 커서 위치 업데이트 함수 (향후 확장 가능)
-  const updateCursor = (_x: number, _y: number) => {
+  const updateCursor = () => {
     if (!channel) return;
     
     const awarenessData: UserAwareness = {
