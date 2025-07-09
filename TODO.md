@@ -67,12 +67,15 @@
 
 ## Phase 3: 실시간 협업 기능 (2-3주) ⚡ 단축됨
 
-### 3.1 Y-Supabase 기반 실시간 협업 (Priority: 🔴 Critical) ✅ 완료
-- [x] **Y-Supabase 설치 및 설정**: `npm install y-supabase`
-- [x] **SupabaseProvider 통합**: Y.Doc과 Supabase 연결
-- [x] **실시간 동기화**: 문서 변경사항 실시간 동기화
-- [x] **Awareness 구현**: 사용자 커서 및 선택 상태 공유
-- [x] **자동 저장**: 변경사항 자동 데이터베이스 저장
+### 3.1 Yjs + Supabase Realtime 직접 구현 (Priority: 🔴 Critical) ⚠️ 재구현 필요
+- [x] **Y-Supabase 설치 및 설정**: `npm install y-supabase` (삭제 예정)
+- [x] **SupabaseProvider 통합**: Y.Doc과 Supabase 연결 (재구현 필요)
+- [x] **실시간 동기화**: 문서 변경사항 실시간 동기화 (재구현 필요)
+- [x] **Awareness 구현**: 사용자 커서 및 선택 상태 공유 (재구현 필요)
+- [x] **자동 저장**: 변경사항 자동 데이터베이스 저장 (재구현 필요)
+- [ ] **y-supabase 제거**: 불안정한 라이브러리 제거
+- [ ] **Yjs + Supabase Realtime 직접 구현**: 안정적인 협업 시스템 구축
+- [ ] **새로운 아키텍처 적용**: 모듈화된 훅 기반 구조
 
 ### 3.2 협업 UI 구현 (Priority: 🟡 High)
 - [ ] **온라인 사용자 목록**: 현재 편집 중인 사용자 표시
